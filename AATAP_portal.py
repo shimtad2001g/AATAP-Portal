@@ -226,7 +226,7 @@ st.sidebar.subheader(L["manual"])
 with st.sidebar.form("coord_form"):
     manual_lat = st.number_input(L["lat"], value=9.034722, format="%.6f")
     manual_lon = st.number_input(L["lon"], value=38.750833, format="%.6f")
-    submit_coords = st.sidebar.form_submit_button(L["calc_manual"])
+    submit_coords = st.form_submit_button(L["calc_manual"])
 
 if "user_lat" not in st.session_state:
     st.session_state.user_lat = None
@@ -327,3 +327,4 @@ st.download_button(
 
 st.markdown("---")
 st.markdown(f"<div style='text-align: center; color: grey; font-size: 12px;'>{L['footer']} | Generated: {datetime.date.today()}</div>", unsafe_allow_html=True)
+
