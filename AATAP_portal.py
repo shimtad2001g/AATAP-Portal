@@ -6,6 +6,7 @@ from folium.plugins import LocateControl
 import pathlib
 import json
 import math
+import requests
 import datetime
 from geopy.geocoders import Nominatim
 
@@ -210,16 +211,21 @@ st.sidebar.markdown("---")
 st.sidebar.subheader(L["search"])
 search_query = st.sidebar.text_input(L["search"], placeholder="e.g., Bole Airport")
 if st.sidebar.button(L["search_btn"]):
-    geolocator = Nominatim(user_agent="aatap_portal")
     try:
-        location = geolocator.geocode(search_query + ", Addis Ababa, Ethiopia")
-        if location:
-            st.session_state.user_lat = location.latitude
-            st.session_state.user_lon = location.longitude
+        url = f"https://photon.komoot.io/api/?q={search_query}+Addis+Ababa+Ethiopia&limit=1"
+        headers = {'User-Agent': 'AATAP-Portal/2.0'}
+        response = requests.get(url, headers=headers, timeout=10)
+        data = response.json()
+        
+        if data and 'features' in data and len(data['features']) > 0:
+            coords = data['features'][0]['geometry']['coordinates']
+            st.session_state.user_lon = coords[0]
+            st.session_state.user_lat = coords[1]
+            st.sidebar.success("Location found!")
         else:
-            st.sidebar.error("Location not found. Try adding a city name.")
+            st.sidebar.error("Location not found. Try a different landmark.")
     except Exception as e:
-        st.sidebar.error("Geocoding service timed out. Please try again.")
+        st.sidebar.error(f"Search failed: {str(e)}")
 
 st.sidebar.markdown("---")
 st.sidebar.subheader(L["manual"])
@@ -355,5 +361,6 @@ st.markdown(f"""
     <span style="color: #888; font-size: 11px;">Generated: {datetime.date.today()} | AATAP v2.0</span>
 </div>
 """, unsafe_allow_html=True)
+
 
 
