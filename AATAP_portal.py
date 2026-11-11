@@ -166,6 +166,23 @@ L = lang_dict[lang_choice]
 BASE_DIR = pathlib.Path(__file__).parent
 
 # --- TITLE AND DEVELOPER INFO ---
+# --- ADD LOGO AND PROFILE PHOTO ---
+# Sidebar Logo
+try:
+    st.sidebar.image(str(BASE_DIR / 'assets' / 'logo.png'), use_container_width=True)
+    st.sidebar.markdown("---")
+except:
+    pass
+
+# Top Center Profile Photo
+col1, col2, col3 = st.columns([1, 1, 1])
+with col2:
+    try:
+        st.image(str(BASE_DIR / 'assets' / 'profile.png'), use_container_width=True)
+    except:
+        pass
+
+st.markdown("---")
 st.title(L["title"])
 
 # Developer Info Callout Box
@@ -361,6 +378,7 @@ st.markdown(f"""
     <span style="color: #888; font-size: 11px;">Generated: {datetime.date.today()} | AATAP v2.0</span>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
