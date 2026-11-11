@@ -171,7 +171,7 @@ st.markdown("""
 <div style="background-color:#f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 6px solid #1f4e79; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
     <b>Developed by:</b> Shimeles Tadesse Zelelew <br>
     📧 <b>Email:</b> <a href="mailto:shimtad2001g@gmail.com" style="color:#0056b3; text-decoration:none;">shimtad2001g@gmail.com</a> <br>
-    🏢 <b>Affiliation:</b> Associate researcher @ Space Science and Geospatial Institute
+    🏢 Associate researcher @ Space Science and Geospatial Institute
 </div>
 """, unsafe_allow_html=True)
 
@@ -336,3 +336,4 @@ st.markdown(f"""
     <span style="color: #888; font-size: 11px;">Generated: {datetime.date.today()} | AATAP v2.0</span>
 </div>
 """, unsafe_allow_html=True)
+
