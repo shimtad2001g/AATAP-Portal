@@ -4,11 +4,10 @@ import folium
 from streamlit_folium import st_folium
 from folium.plugins import LocateControl
 import pathlib
-import json
 import math
-import requests
 import datetime
-from geopy.geocoders import Nominatim
+import requests
+import json
 
 # --- CONFIGURATION & UI THEMING ---
 st.set_page_config(page_title="AATAP | Global Transit Portal", layout="wide", page_icon="🌍")
@@ -165,16 +164,13 @@ L = lang_dict[lang_choice]
 
 BASE_DIR = pathlib.Path(__file__).parent
 
-# --- TITLE AND DEVELOPER INFO ---
 # --- ADD LOGO AND PROFILE PHOTO ---
-# Sidebar Logo (Full width in sidebar)
 try:
-    st.sidebar.image(str(BASE_DIR / 'assets' / 'logo.jpg'), use_container_width=True)
+    st.sidebar.image(str(BASE_DIR / 'assets' / 'logo.png'), use_container_width=True)
     st.sidebar.markdown("---")
 except Exception:
     pass
 
-# Top Center Profile Photo (Fixed width for professional avatar look)
 col1, col2, col3 = st.columns([1, 1, 1])
 with col2:
     try:
@@ -183,6 +179,7 @@ with col2:
         pass
 
 st.markdown("---")
+
 st.title(L["title"])
 
 # Developer Info Callout Box
@@ -348,7 +345,6 @@ st.download_button(
     mime='text/csv',
 )
 
-
 # --- MODEL VALIDATION METRICS ---
 st.markdown("---")
 st.subheader("🧠 AI Model Validation (Self-Supervised Learning)")
@@ -366,21 +362,17 @@ try:
             f"**Generalization RMSE (2026):** {metrics['generalization']['rmse_2026']} min")
 except Exception as e:
     st.warning("Validation metrics not yet generated.")
+
 # --- EXPANDED FOOTER WITH METADATA ---
 st.markdown("---")
 st.markdown(f"""
 <div style="text-align: center; color: #555; font-size: 12px; line-height: 1.6; background-color: #eef2f5; padding: 15px; border-radius: 5px;">
     <b>Projection:</b> EPSG:32637 (WGS 84 / UTM Zone 37N) &nbsp;|&nbsp; 
-    <b>Data Years:</b> 2025 &nbsp;|&nbsp; 
+    <b>Data Years:</b> 2026 &nbsp;|&nbsp; 
     <b>Data Types:</b> GTFS (.txt), Shapefile (.shp), GeoJSON, CSV<br>
     <b>Data Sources & Platforms:</b> DigitalTransport4Africa (GTFS), OpenStreetMap, BBBike, Streamlit Cloud, GitHub<br>
     <b>Validation Performed:</b> Self-supervised learning algorithm (Deep Learning)<br>
+    <b>© {datetime.date.today().year} Shimeles Tadesse Zelelew. All rights reserved.</b><br>
     <span style="color: #888; font-size: 11px;">Generated: {datetime.date.today()} | AATAP v2.0</span>
 </div>
 """, unsafe_allow_html=True)
-
-
-
-
-
-
