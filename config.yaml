@@ -1,0 +1,23 @@
+cookie:
+  expiry_days: 30
+  key: aatap_secret_key_2026_a7b3c9d1e5
+  name: aatap_cookie
+credentials:
+  usernames:
+    admin:
+      email: shimtad2001g@gmail.com
+      first_name: Shimeles
+      last_name: Tadesse
+      password: $2b$12$ohqBqGJyuh2objvKc1dVceShEqQqxiUYw4EFUzGoBrbBEAIkkA8xe
+      roles:
+      - admin
+    demo:
+      email: demo@aatap.et
+      first_name: Demo
+      last_name: User
+      password: $2b$12$N.eEvp6iydzbo1ILyxd2O.qdxC831cbpNwoz/kBZSAgxlCZuC23Hq
+      roles:
+      - viewer
+pre_authorized:
+  emails:
+  - shimtad2001g@gmail.com
