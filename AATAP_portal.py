@@ -328,3 +328,4 @@ st.download_button(
 st.markdown("---")
 st.markdown(f"<div style='text-align: center; color: grey; font-size: 12px;'>{L['footer']} | Generated: {datetime.date.today()}</div>", unsafe_allow_html=True)
 
+
