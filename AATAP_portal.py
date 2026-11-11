@@ -167,19 +167,19 @@ BASE_DIR = pathlib.Path(__file__).parent
 
 # --- TITLE AND DEVELOPER INFO ---
 # --- ADD LOGO AND PROFILE PHOTO ---
-# Sidebar Logo
+# Sidebar Logo (Full width in sidebar)
 try:
     st.sidebar.image(str(BASE_DIR / 'assets' / 'logo.jpg'), use_container_width=True)
     st.sidebar.markdown("---")
-except:
+except Exception:
     pass
 
-# Top Center Profile Photo
+# Top Center Profile Photo (Fixed width for professional avatar look)
 col1, col2, col3 = st.columns([1, 1, 1])
 with col2:
     try:
-        st.image(str(BASE_DIR / 'assets' / 'profile.jpg'), use_container_width=True)
-    except:
+        st.image(str(BASE_DIR / 'assets' / 'profile.jpg'), width=200)
+    except Exception:
         pass
 
 st.markdown("---")
@@ -378,6 +378,7 @@ st.markdown(f"""
     <span style="color: #888; font-size: 11px;">Generated: {datetime.date.today()} | AATAP v2.0</span>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
