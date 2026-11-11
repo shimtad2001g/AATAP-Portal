@@ -4,6 +4,7 @@ import folium
 from streamlit_folium import st_folium
 from folium.plugins import LocateControl
 import pathlib
+import json
 import math
 import datetime
 from geopy.geocoders import Nominatim
@@ -324,6 +325,24 @@ st.download_button(
     mime='text/csv',
 )
 
+
+# --- MODEL VALIDATION METRICS ---
+st.markdown("---")
+st.subheader("🧠 AI Model Validation (Self-Supervised Learning)")
+try:
+    with open(BASE_DIR / 'data' / 'validation_metrics.json') as f:
+        metrics = json.load(f)
+    
+    col1, col2, col3 = st.columns(3)
+    col1.metric("R² Score (Accuracy)", metrics['extrinsic']['r2'])
+    col2.metric("RMSE (Error)", f"{metrics['extrinsic']['rmse']} min")
+    col3.metric("MAE (Error)", f"{metrics['extrinsic']['mae']} min")
+    
+    st.info(f"**Intrinsic SSL Loss:** {metrics['intrinsic']['val_loss']} | "
+            f"**Baseline RMSE:** {metrics['baseline']['rmse_distance']} min | "
+            f"**Generalization RMSE (2026):** {metrics['generalization']['rmse_2026']} min")
+except Exception as e:
+    st.warning("Validation metrics not yet generated.")
 # --- EXPANDED FOOTER WITH METADATA ---
 st.markdown("---")
 st.markdown(f"""
@@ -336,4 +355,5 @@ st.markdown(f"""
     <span style="color: #888; font-size: 11px;">Generated: {datetime.date.today()} | AATAP v2.0</span>
 </div>
 """, unsafe_allow_html=True)
+
 

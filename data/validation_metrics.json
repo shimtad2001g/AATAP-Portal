@@ -1,0 +1,1 @@
+{"intrinsic": {"loss": 0.042, "val_loss": 0.048}, "extrinsic": {"rmse": 30.54, "mae": 22.05, "r2": -0.1522}, "generalization": {"rmse_2026": 33.59}, "baseline": {"rmse_distance": 10.9}}
