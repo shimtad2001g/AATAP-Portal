@@ -315,6 +315,16 @@ if st.session_state["authentication_status"]:
     # ========================
     if page == L["dashboard"]:
         st.title(L["title"])
+        # --- PROFILE PHOTO ---
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            try:
+                st.image(str(BASE_DIR / 'assets' / 'profile.jpg'), width=200)
+            except Exception:
+                pass
+        
+        st.markdown("---")
+
         st.markdown(f"""
         <div style="background-color:#f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 6px solid #1f4e79;">
             <b>Developed by:</b> Shimeles Tadesse Zelelew <br>
@@ -543,3 +553,4 @@ if st.session_state["authentication_status"]:
         <span style="color: #888; font-size: 11px;">Generated: {datetime.date.today()} | AATAP v2.0</span>
     </div>
     """, unsafe_allow_html=True)
+
