@@ -332,6 +332,14 @@ if st.session_state["authentication_status"]:
             🏢 Associate researcher @ Space Science and Geospatial Institute
         </div>
         """, unsafe_allow_html=True)
+        
+        # --- QR CODE DISPLAY ---
+        col_qr1, col_qr2, col_qr3 = st.columns([1, 1, 1])
+        with col_qr2:
+            try:
+                st.image(str(BASE_DIR / 'assets' / 'qr_code.png'), caption="📱 Scan to Save Contact & Open Portal", use_container_width=True)
+            except Exception:
+                pass
         st.markdown(L["desc"])
 
         # KPI Cards
@@ -530,6 +538,18 @@ if st.session_state["authentication_status"]:
     # ========================
     elif page == L["settings"]:
         st.title(L["settings"])
+        
+        # --- QR CODE DISPLAY ON SETTINGS ---
+        st.subheader("📱 Share & Connect")
+        st.markdown("Scan this QR code with a smartphone to instantly save contact information and open the portal.")
+        col_s1, col_s2, col_s3 = st.columns([1, 1, 1])
+        with col_s2:
+            try:
+                st.image(str(BASE_DIR / 'assets' / 'qr_code.png'), use_container_width=True)
+            except Exception:
+                pass
+        st.markdown("---")
+
         with st.form("settings_form"):
             st.subheader("Profile Information")
             name = st.text_input("Full Name", value=st.session_state.get('name', 'Shimeles Tadesse Zelelew'))
@@ -553,4 +573,5 @@ if st.session_state["authentication_status"]:
         <span style="color: #888; font-size: 11px;">Generated: {datetime.date.today()} | AATAP v2.0</span>
     </div>
     """, unsafe_allow_html=True)
+
 
