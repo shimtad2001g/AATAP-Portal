@@ -38,36 +38,41 @@ authenticator = stauth.Authenticate(
     pre_authorized=config['pre_authorized']['emails']
 )
 
+# Initialize session state
 if "authentication_status" not in st.session_state:
     st.session_state["authentication_status"] = None
 if "demo_activated" not in st.session_state:
     st.session_state["demo_activated"] = False
+if "dev_mode" not in st.session_state:
+    st.session_state["dev_mode"] = False
 
-# Skip login widget if in demo mode
-if not (st.session_state.get("demo_activated") and st.session_state.get("authentication_status")):
-    # Developer bypass via URL parameter (?dev=AATAP_DEV_2026_SECRET)
+# --- DEVELOPER BYPASS VIA URL (?dev=AATAP_DEV_2026_SECRET) ---
 if st.query_params.get("dev", "") == "AATAP_DEV_2026_SECRET":
     st.session_state["authentication_status"] = True
     st.session_state["username"] = "admin"
     st.session_state["name"] = "Shimeles Tadesse (Developer)"
     st.session_state["dev_mode"] = True
 
+# --- LOGIN GATE ---
+# Only show login widget if NOT already authenticated (via dev bypass, demo, or previous login)
 if not st.session_state.get("authentication_status"):
     authenticator.login(location='main')
 
-# Handle auth states
+# Handle login states
 if st.session_state["authentication_status"] is False:
     st.error('❌ Username/password is incorrect')
+
 elif st.session_state["authentication_status"] is None:
-    # Branding on login page
+    # Login page branding
     col_logo, _ = st.columns([1, 4])
     with col_logo:
         try:
             st.image(str(BASE_DIR / 'assets' / 'logo.png'), width=120)
-        except: pass
-    
+        except Exception:
+            pass
+
     st.warning('⚠️ Please enter your username and password to access the portal.')
-    
+
     st.markdown("---")
     if st.button("🚀 Enter Demo Mode (No Login Required)", use_container_width=True):
         st.session_state["demo_activated"] = True
@@ -75,7 +80,7 @@ elif st.session_state["authentication_status"] is None:
         st.session_state["username"] = "demo"
         st.session_state["name"] = "Demo User"
         st.rerun()
-    
+
     st.markdown("---")
     st.markdown("### 📝 New User? Register Below")
     try:
@@ -86,31 +91,36 @@ elif st.session_state["authentication_status"] is None:
     except Exception as e:
         st.error(f"Registration error: {e}")
 
-# --- MAIN PORTAL (AFTER LOGIN) ---
+# --- MAIN PORTAL (ONLY AFTER AUTHENTICATION) ---
 if st.session_state["authentication_status"]:
-    # Sidebar: Logo + Logout
+
+    # Sidebar Logo
     try:
         st.sidebar.image(str(BASE_DIR / 'assets' / 'logo.png'), use_container_width=True)
         st.sidebar.markdown("---")
-    except: pass
-    
+    except Exception:
+        pass
+
+    # Logout button
     if st.sidebar.button("🚪 Logout", use_container_width=True):
-        for k in ["authentication_status", "username", "name", "dev_mode"]:
+        for k in ["authentication_status", "username", "name", "demo_activated", "dev_mode"]:
             st.session_state[k] = None
         st.session_state["demo_activated"] = False
+        st.session_state["dev_mode"] = False
         try:
             authenticator.logout(location='unrendered')
-        except: pass
+        except Exception:
+            pass
         st.rerun()
-    
-    if st.session_state.get("dev_mode"):
-    st.success("🔓 Developer Mode Active — Access granted via secure URL")
 
-if st.session_state.get("demo_activated"):
+    # Status badges
+    if st.session_state.get("dev_mode"):
+        st.success("🔓 Developer Mode Active — Access granted via secure URL")
+    elif st.session_state.get("demo_activated"):
         st.info("🎯 You are viewing this portal in Demo Mode.")
-    
+
     st.sidebar.markdown("---")
-    
+
     # Language selector
     lang_dict = {
         "English": {
@@ -138,21 +148,22 @@ if st.session_state.get("demo_activated"):
             "export": "📥 መረጃውን ወደ CSV አውርድ", "table": "የመረጃ ሰንጠረዥ፡ ከፍተኛ ጊዜ የሚወስዱ ማቆሚያዎች"
         }
     }
-    
+
     st.sidebar.header("🌐 Language")
     lang_choice = st.sidebar.radio("Select Language", list(lang_dict.keys()))
     L = lang_dict[lang_choice]
-    
+
     # Profile photo
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
         try:
             st.image(str(BASE_DIR / 'assets' / 'profile.jpg'), width=200)
-        except: pass
-    
+        except Exception:
+            pass
+
     st.markdown("---")
     st.title(L["title"])
-    
+
     st.markdown("""
     <div style="background-color:#f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 6px solid #1f4e79;">
         <b>Developed by:</b> Shimeles Tadesse Zelelew <br>
@@ -160,13 +171,13 @@ if st.session_state.get("demo_activated"):
         🏢 Associate researcher @ Space Science and Geospatial Institute
     </div>
     """, unsafe_allow_html=True)
-    
+
     st.markdown(L["desc"])
     st.sidebar.header(L["controls"])
-    
+
     period_choice = st.sidebar.radio(L["period"], [L["am_peak"], L["pm_peak"]])
     period_code = "AMPK" if period_choice == L["am_peak"] else "PMPK"
-    
+
     @st.cache_data
     def load_data(period_code):
         df = pd.read_csv(BASE_DIR / 'data' / f'AATAP_ACC_MET_{period_code}_TAB_v1.0.csv')
@@ -174,14 +185,14 @@ if st.session_state.get("demo_activated"):
         df = df.merge(stops[['stop_id', 'stop_lat', 'stop_lon', 'stop_name']], on='stop_id')
         offices = pd.read_csv(BASE_DIR / 'data' / 'AATAP_GOVOFF_MET_SRC_TAB_v1.0.csv')
         return df, offices
-    
+
     df, offices = load_data(period_code)
-    
+
     office_list = df['office_name'].unique()
     selected_office = st.sidebar.selectbox(L["office"], office_list)
     office_data = df[df['office_name'] == selected_office].copy()
     office_loc = offices[offices['office_name'] == selected_office].iloc[0]
-    
+
     st.sidebar.markdown("---")
     st.sidebar.subheader(L["search"])
     search_query = st.sidebar.text_input(L["search"], placeholder="e.g., Bole Airport")
@@ -198,43 +209,43 @@ if st.session_state.get("demo_activated"):
                 st.sidebar.error("Location not found.")
         except Exception as e:
             st.sidebar.error(f"Search failed: {str(e)}")
-    
+
     st.sidebar.markdown("---")
     st.sidebar.subheader(L["manual"])
     with st.sidebar.form("coord_form"):
         manual_lat = st.number_input(L["lat"], value=9.034722, format="%.6f")
         manual_lon = st.number_input(L["lon"], value=38.750833, format="%.6f")
         submit_coords = st.form_submit_button(L["calc_manual"])
-    
+
     if "user_lat" not in st.session_state: st.session_state.user_lat = None
     if "user_lon" not in st.session_state: st.session_state.user_lon = None
     if submit_coords:
         st.session_state.user_lat = manual_lat
         st.session_state.user_lon = manual_lon
-    
+
     st.subheader(f"Accessibility to: {selected_office}")
     m = folium.Map(location=[office_loc['latitude'], office_loc['longitude']], zoom_start=12, tiles="OpenStreetMap")
     LocateControl(auto_start=False).add_to(m)
-    
+
     folium.Marker(
         location=[office_loc['latitude'], office_loc['longitude']],
         popup=f"<b>{selected_office}</b>",
         icon=folium.Icon(color='black', icon='star', prefix='fa')
     ).add_to(m)
-    
+
     if st.session_state.user_lat is not None:
         folium.Marker(
             location=[st.session_state.user_lat, st.session_state.user_lon],
             icon=folium.Icon(color='red', icon='user', prefix='fa')
         ).add_to(m)
-    
+
     def get_color(time):
         if time <= 15: return '#00FF00'
         elif time <= 30: return '#FFFF00'
         elif time <= 45: return '#FFA500'
         elif time <= 60: return '#FF0000'
         else: return '#800080'
-    
+
     for idx, row in office_data.iterrows():
         folium.CircleMarker(
             location=[row['stop_lat'], row['stop_lon']],
@@ -242,7 +253,7 @@ if st.session_state.get("demo_activated"):
             fill=True, fill_color=get_color(row['travel_time_min']), fill_opacity=0.7,
             popup=f"<b>{row['stop_name']}</b><br>Travel Time: {row['travel_time_min']} mins"
         ).add_to(m)
-    
+
     legend_html = """
     <div style="position: fixed; bottom: 50px; left: 50px; width: 220px; height: 220px; 
          background-color: white; border:2px solid grey; z-index:9999; font-size:14px;
@@ -258,13 +269,13 @@ if st.session_state.get("demo_activated"):
     </div>
     """
     m.get_root().html.add_child(folium.Element(legend_html))
-    
+
     map_data = st_folium(m, width=1200, height=500, returned_objects=["last_clicked"])
-    
+
     if map_data and map_data.get("last_clicked"):
         st.session_state.user_lat = map_data["last_clicked"]["lat"]
         st.session_state.user_lon = map_data["last_clicked"]["lng"]
-    
+
     if st.session_state.user_lat is not None:
         st.markdown("---")
         st.subheader(L["analysis"])
@@ -283,14 +294,14 @@ if st.session_state.get("demo_activated"):
         col1.metric(L["nearest_stop"], nearest_stop['stop_name'])
         col2.metric(L["walk_dist"], f"{nearest_stop['dist_to_click']:.0f} m")
         col3.metric(L["travel_time"], f"{nearest_stop['travel_time_min']} min")
-    
+
     st.markdown("---")
     st.subheader(L["table"])
     worst_stops = office_data.sort_values(by='travel_time_min', ascending=False).head(50)[['stop_name', 'travel_time_min']]
     st.dataframe(worst_stops, use_container_width=True)
     csv = worst_stops.to_csv(index=False).encode('utf-8')
     st.download_button(label=L["export"], data=csv, file_name=f'AATAP_Worst_Stops_{period_code}.csv', mime='text/csv')
-    
+
     st.markdown("---")
     st.subheader("🧠 AI Model Validation (Self-Supervised Learning)")
     try:
@@ -301,8 +312,9 @@ if st.session_state.get("demo_activated"):
         col2.metric("RMSE (Error)", f"{metrics['extrinsic']['rmse']} min")
         col3.metric("MAE (Error)", f"{metrics['extrinsic']['mae']} min")
         st.info(f"**Intrinsic SSL Loss:** {metrics['intrinsic']['val_loss']} | **Baseline RMSE:** {metrics['baseline']['rmse_distance']} min | **Generalization RMSE (2026):** {metrics['generalization']['rmse_2026']} min")
-    except: pass
-    
+    except Exception:
+        pass
+
     st.markdown("---")
     st.markdown(f"""
     <div style="text-align: center; color: #555; font-size: 12px; line-height: 1.6; background-color: #eef2f5; padding: 15px; border-radius: 5px;">
@@ -315,4 +327,3 @@ if st.session_state.get("demo_activated"):
         <span style="color: #888; font-size: 11px;">Generated: {datetime.date.today()} | AATAP v2.0</span>
     </div>
     """, unsafe_allow_html=True)
-
